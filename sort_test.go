@@ -1,33 +1,36 @@
 package example_go
 
-import "testing"
-import "github.com/stretchr/testify/assert"
+import (
+	"math"
+	"testing"
+)
 
 /**
 see https://www.cnblogs.com/onepixel/p/7674659.html
 */
 
+const arrLen = 100000
+
 func newArrs() []int {
-	arrs := make([]int, 10000)
-	for i := 0; i < 10000; i++ {
-		arrs[i] = 10000 - i
+	arrs := make([]int, arrLen)
+	for i := 0; i < arrLen; i++ {
+		arrs[i] = arrLen - i
 	}
 	return arrs
 }
 
-func checkArrs(arrs []int) bool {
+func checkArrs(arrs []int, b *testing.B) {
 	len := len(arrs) - 1
 	for i := 0; i < len; i++ {
 		if arrs[i] > arrs[i+1] {
-			return false
+			b.Fail()
 		}
 	}
-	return true
 }
 
-func TestBubbleSort(t *testing.T) {
-	assert := assert.New(t)
-
+// 冒泡排序
+func BenchmarkBubbleSort(b *testing.B) {
+	b.ResetTimer()
 	arrs := newArrs()
 	len := len(arrs) - 1
 	for i := 0; i < len; i++ {
@@ -40,12 +43,12 @@ func TestBubbleSort(t *testing.T) {
 		}
 	}
 
-	assert.Equal(true, checkArrs(arrs))
+	checkArrs(arrs, b)
 }
 
-func TestSelectionSort(t *testing.T) {
-	assert := assert.New(t)
-
+// 选择排序
+func BenchmarkSelectionSort(b *testing.B) {
+	b.ResetTimer()
 	arrs := newArrs()
 	len := len(arrs)
 	mixIndex, temp := 0, 0
@@ -62,12 +65,12 @@ func TestSelectionSort(t *testing.T) {
 		arrs[mixIndex] = temp
 	}
 
-	assert.Equal(true, checkArrs(arrs))
+	checkArrs(arrs, b)
 }
 
-func TestInsertionSort(t *testing.T) {
-	assert := assert.New(t)
-
+// 插入排序
+func BenchmarkInsertionSort(b *testing.B) {
+	b.ResetTimer()
 	arrs := newArrs()
 	len := len(arrs)
 	preIndex, current := 0, 0
@@ -82,14 +85,43 @@ func TestInsertionSort(t *testing.T) {
 		}
 		arrs[preIndex+1] = current
 	}
-
-	assert.Equal(true, checkArrs(arrs))
+	checkArrs(arrs, b)
 }
 
-func TestShellSort(t *testing.T) {
-	assert := assert.New(t)
-
+// 希尔排序
+func BenchmarkShellSort(b *testing.B) {
+	b.ResetTimer()
 	arrs := newArrs()
+	len := len(arrs)
+	for gap := math.Floor(float64(len / 2)); gap > 0; gap = math.Floor(gap / 2) {
+		for i := int(gap); i < len; i++ {
+			j, iGap := i, int(gap)
+			current := arrs[i]
+			for j-iGap >= 0 && current < arrs[j-iGap] {
+				arrs[j] = arrs[j-int(gap)]
+				j = j - iGap
+			}
+			arrs[j] = current
+		}
+	}
+	checkArrs(arrs, b)
+}
 
-	assert.Equal(true, checkArrs(arrs))
+// 归并排序
+func BenchmarkMergeSort(b *testing.B) {
+	b.ResetTimer()
+	arrs := newArrs()
+	len := len(arrs)
+	if len > 1 {
+		middle := int(math.Floor(float64(len / 2)))
+		//left, right := make([]int, middle), make([]int, len-middle)
+		//copy(left, arrs)
+		//copy(right, arrs)
+	}
+
+	checkArrs(arrs, b)
+}
+
+func merge(left []int, right []int) {
+
 }
