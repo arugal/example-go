@@ -6,7 +6,7 @@ import (
 )
 
 func TestResolveIPAddr(t *testing.T) {
-	_, err := net.ResolveIPAddr("ip", "www.sunnus3.online")
+	_, err := net.ResolveIPAddr("ip", "www.baidu.com")
 
 	if err != nil {
 		t.Error(err)
