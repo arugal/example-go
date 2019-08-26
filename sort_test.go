@@ -9,7 +9,7 @@ import (
 see https://www.cnblogs.com/onepixel/p/7674659.html
 */
 
-const arrLen = 100000
+const arrLen = 10
 
 func newArrs() []int {
 	arrs := make([]int, arrLen)
@@ -111,17 +111,35 @@ func BenchmarkShellSort(b *testing.B) {
 func BenchmarkMergeSort(b *testing.B) {
 	b.ResetTimer()
 	arrs := newArrs()
-	len := len(arrs)
-	if len > 1 {
-		middle := int(math.Floor(float64(len / 2)))
-		//left, right := make([]int, middle), make([]int, len-middle)
-		//copy(left, arrs)
-		//copy(right, arrs)
+	l := len(arrs)
+	if l > 1 {
+		middle := int(math.Floor(float64(l / 2)))
+		left, right := arrs[0:middle], arrs[middle:]
+		arrs = merge(left, right)
 	}
-
 	checkArrs(arrs, b)
 }
 
-func merge(left []int, right []int) {
+func merge(left []int, right []int) (result []int) {
+	for len(left) > 0 && len(right) > 0 {
+		if left[0] <= right[0] {
+			result = append(result, left[0])
+			left = left[1:]
 
+		} else {
+			result = append(result, right[0])
+			right = right[1:]
+		}
+	}
+
+	for len(left) > 0 {
+		result = append(result, left[0])
+		left = left[1:]
+	}
+
+	for len(right) > 0 {
+		result = append(result, right[0])
+		right = right[1:]
+	}
+	return
 }
