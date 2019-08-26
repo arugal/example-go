@@ -13,9 +13,13 @@ func TestResolveIPAddr(t *testing.T) {
 	}
 }
 
-func TestDialTCP(t *testing.T) {
+func TestDial(t *testing.T) {
 	port := "8282"
-	listen, err := listen(port)
+	fetch := 9
+	listen, err := listen(port, func(conn net.Conn) {
+		defer conn.Close()
+		_, _ = conn.Write([]byte{byte(fetch)})
+	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -28,17 +32,17 @@ func TestDialTCP(t *testing.T) {
 	read := []byte{1}
 	s, err := conn.Read(read)
 	if err != nil {
-		t.Error(err)
+		t.Errorf("read err %v", err)
 	}
 	if s != 1 {
-		t.Failed()
+		t.Errorf("read result len = %d", s)
 	}
-	if read[0] != 0 {
-		t.Failed()
+	if len(read) < 1 || read[0] != byte(fetch) {
+		t.Errorf("read %d != %d", read[0], fetch)
 	}
 }
 
-func listen(port string) (net.Listener, error) {
+func listen(port string, handler func(conn net.Conn)) (net.Listener, error) {
 	listen, err := net.Listen("tcp", "127.0.0.1:"+
 		port)
 	if err != nil {
@@ -51,8 +55,7 @@ func listen(port string) (net.Listener, error) {
 			if err != nil {
 				continue
 			}
-			defer conn.Close()
-			_, _ = conn.Write([]byte{0})
+			handler(conn)
 		}
 	}()
 
