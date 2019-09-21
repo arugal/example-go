@@ -1,5 +1,8 @@
 version: '2'
 
+# https://www.jianshu.com/p/4f55daa9d2cd
+# https://github.com/Shopify/sarama
+
 services:
   zookeeper:
     image: zookeeper
