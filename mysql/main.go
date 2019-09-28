@@ -2,11 +2,10 @@ package main
 
 import (
 	"database/sql"
-	"encoding/json"
+	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"net/http"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 // https://blog.51cto.com/zhixinhu/1844734
@@ -24,14 +23,21 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/select", Select)
-	err := http.ListenAndServe(":9000", nil)
-	if err != nil {
-		log.Fatal("ListenAndServer:", err)
+	route := gin.Default()
+
+	dao := route.Group("/dao")
+
+	{
+		dao.GET("/select", Select)
+		dao.POST("/insert", Insert)
+		dao.POST("/update", Update)
+		dao.POST("/delete", Delete)
 	}
+
+	route.Run(":9000")
 }
 
-func Select(w http.ResponseWriter, r *http.Request) {
+func Select(ctx *gin.Context) {
 	rows, err := db.Query("select id, `name`, age from user")
 	checkErr(err, "db query err")
 	defer rows.Close()
@@ -44,10 +50,100 @@ func Select(w http.ResponseWriter, r *http.Request) {
 		checkErr(err, "rows scan err")
 		users = append(users, user)
 	}
+	ctx.JSON(http.StatusOK, users)
+}
 
-	result, err := json.Marshal(users)
-	checkErr(err, "json Marshal users err")
-	_, _ = w.Write(result)
+func Insert(ctx *gin.Context) {
+	var user User
+	if ctx.ShouldBind(&user) == nil {
+		Exec(ctx, "INSERT INTO user (name, age) VALUES (?, ?)", func(result sql.Result) {
+			id, err := result.LastInsertId()
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"action": "LastInsertId",
+					"name":   user.Name,
+					"age":    user.Age,
+				})
+				log.Println(err)
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"id": id,
+			})
+		}, func() []interface{} {
+			return []interface{}{user.Name, user.Age}
+		})
+	}
+}
+
+func Update(ctx *gin.Context) {
+	var user User
+	if ctx.ShouldBind(&user) == nil {
+		Exec(ctx, "UPDATE user SET name = ?, age = ? WHERE  id = ?", func(result sql.Result) {
+			num, err := result.RowsAffected()
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"action": "RowsAffected",
+					"id":     user.Id,
+					"name":   user.Name,
+					"age":    user.Age,
+				})
+				log.Println(err)
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"num": num,
+			})
+		}, func() []interface{} {
+			return []interface{}{user.Name, user.Age, user.Id}
+		})
+	}
+}
+
+func Delete(ctx *gin.Context) {
+	var user User
+	if ctx.ShouldBind(&user) == nil {
+		Exec(ctx, "DELETE FROM user where id = ?", func(result sql.Result) {
+			num, err := result.RowsAffected()
+			if err != nil {
+				ctx.JSON(http.StatusInternalServerError, gin.H{
+					"action": "RowsAffected",
+					"id":     user.Id,
+				})
+				log.Println(err)
+				return
+			}
+			ctx.JSON(http.StatusOK, gin.H{
+				"num": num,
+			})
+		}, func() []interface{} {
+			return []interface{}{user.Id}
+		})
+	}
+}
+
+func Exec(ctx *gin.Context, sql string, resFunc func(result sql.Result), argsFunc func() []interface{}) {
+	stmt, err := db.Prepare(sql)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"action": "Prepare",
+			"sql":    sql,
+		})
+		log.Printf("Prepare sql:%s err:%v", sql, err)
+		return
+	}
+
+	args := argsFunc()
+	res, err := stmt.Exec(args...)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"action": "Exec",
+			"args":   args,
+		})
+		log.Printf("Exec sql:%s args:%v err:%v", sql, args, err)
+		return
+	}
+	resFunc(res)
 }
 
 func checkErr(err error, msg string) {
@@ -58,7 +154,7 @@ func checkErr(err error, msg string) {
 }
 
 type User struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	Id   int    `json:"id" form:"id"`
+	Name string `json:"name" form:"name"`
+	Age  int    `json:"age" form:"age"`
 }
