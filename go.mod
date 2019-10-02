@@ -11,6 +11,7 @@ require (
 	github.com/hashicorp/yamux v0.0.0-20181012175058-2f1d1f20f75d
 	github.com/prometheus/client_golang v1.1.0
 	github.com/prometheus/common v0.6.0
+	github.com/sirupsen/logrus v1.2.0
 	google.golang.org/appengine v1.6.4 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 )
