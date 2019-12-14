@@ -182,6 +182,42 @@ func TestYamux(t *testing.T) {
 	time.Sleep(1 * time.Second)
 }
 
+func TestYamux2(t *testing.T) {
+	port := "8283"
+
+	listen, err := listenYamux(port, func(conn net.Conn) {
+		defer conn.Close()
+		fmt.Println("yamux")
+	})
+
+	if err != nil {
+		t.Error(err)
+	}
+
+	defer listen.Close()
+
+	conn, err := net.Dial("tcp", "127.0.0.1:"+port)
+	if err != nil {
+		t.Error(err)
+	}
+	defer conn.Close()
+
+	session, err := yamux.Client(conn, nil)
+	if err != nil {
+		t.Error(err)
+	}
+	defer session.Close()
+
+	for {
+		stream, err := session.Open()
+		if err != nil {
+			t.Error(err)
+		}
+		stream.Close()
+		time.Sleep(20 * time.Second)
+	}
+}
+
 func listenYamux(port string, handler func(conn net.Conn)) (net.Listener, error) {
 	tcpaddr, _ := net.ResolveTCPAddr("tcp4", "127.0.0.1:"+port)
 	listen, err := net.ListenTCP("tcp", tcpaddr)
