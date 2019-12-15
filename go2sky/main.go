@@ -16,7 +16,7 @@ import (
 
 func main() {
 	// Use gRPC reporter for production
-	re, err := reporter.NewLogReporter()
+	re, err := reporter.NewGRPCReporter("192.168.2.124:11800")
 	if err != nil {
 		log.Fatalf("new reporter error %v \n", err)
 	}
@@ -29,13 +29,14 @@ func main() {
 	tracer.WaitUntilRegister()
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.New()
-	r.GET("/user/:name", plugin.Middleware(r, tracer), func(c *gin.Context) {
-		name := c.Param("name")
-		c.String(200, "Hello %s", name)
-	})
 
 	//Use go2sky middleware with tracing
 	r.Use(plugin.Middleware(r, tracer))
+
+	r.GET("/user/:name", func(c *gin.Context) {
+		name := c.Param("name")
+		c.String(200, "Hello %s", name)
+	})
 
 	go func() {
 		if err := http.ListenAndServe(":8080", r); err != nil {
@@ -46,10 +47,13 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		request(tracer)
+		for i := 0; i < 1000; i++ {
+			request(tracer)
+			time.Sleep(time.Millisecond * 100)
+		}
 	}()
 	wg.Wait()
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 10)
 	// Output:
 }
 
