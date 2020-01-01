@@ -3,9 +3,12 @@ FROM golang:1.13
 ENV GOPROXY=https://goproxy.io
 ENV CGO_ENABLED=0
 
-RUN GOOS=linux go build -o ./app .
+RUN mkdir /app
+COPY main.go /app/main.go
+WORKDIR /app
+RUN GOOS=linux go build -o ./client .
 RUN mv ./app /app
 
 FROM debian
-COPY --from=0 /app /app
-ENTRYPOINT /app
+COPY --from=0 /app/client /client
+ENTRYPOINT /client
