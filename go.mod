@@ -13,7 +13,11 @@ require (
 	github.com/prometheus/client_golang v1.1.0
 	github.com/prometheus/common v0.6.0
 	github.com/sirupsen/logrus v1.2.0
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/appengine v1.6.4 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
+	k8s.io/api v0.17.0 // indirect
+	k8s.io/client-go v11.0.0+incompatible
+	k8s.io/utils v0.0.0-20191218082557-f07c713de883 // indirect
 )
