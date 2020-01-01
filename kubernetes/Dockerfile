@@ -7,7 +7,6 @@ RUN mkdir /app
 COPY main.go /app/main.go
 WORKDIR /app
 RUN GOOS=linux go build -o ./client .
-RUN mv ./app /app
 
 FROM debian
 COPY --from=0 /app/client /client
