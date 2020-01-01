@@ -7,5 +7,5 @@ RUN GOOS=linux go build -o ./app .
 RUN mv ./app /app
 
 FROM debian
-COPY --from=0 /app
+COPY --from=0 /app /app
 ENTRYPOINT /app
