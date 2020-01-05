@@ -16,7 +16,7 @@ var (
 		Addr     string
 		ProjectA string
 	}{
-		ProjectA: "projectA",
+		ProjectA: "project-a",
 	}
 
 	rootCmd = &cobra.Command{
@@ -25,10 +25,10 @@ var (
 		RunE: func(cmd *cobra.Command, args []string) error {
 			projectA := os.Getenv("PROJECTA_HOSTNAME")
 			if projectA == "" {
-				log.Printf("projectA use flages: %s", flags.ProjectA)
+				log.Printf("project-a use flages: %s", flags.ProjectA)
 				projectA = flags.ProjectA
 			}
-			log.Printf("projct-b hostname:%s\n", projectA)
+			log.Printf("projct-a hostname:%s\n", projectA)
 
 			router := gin.Default()
 
