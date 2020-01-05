@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: projectA
+  name: project-a
   labels:
-    app: projectA
+    app: project-a
     version: v1.0.0
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: projectA
+      app: project-a
       version: v1.0.0
   template:
     metadata:
       labels:
-        app: projectA
+        app: project-a
         version: v1.0.0
     spec:
       containers:
-        - name: projectA
+        - name: project-a
           image: project-a:1.0
           imagePullPolicy: IfNotPresent
           ports:
@@ -27,24 +27,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: projectB
+  name: project-b
   labels:
-    app: projectB
+    app: project-b
     version: v1.0.0
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: projectB
+      app: project-b
       version: v1.0.0
   template:
     metadata:
       labels:
-        app: projectB
+        app: project-b
         version: v1.0.0
     spec:
       containers:
-        - name: projectB
+        - name: project-b
           image: project-b:1.0
           imagePullPolicy: IfNotPresent
           ports:
@@ -53,27 +53,27 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: projectA
+  name: project-a
   labels:
-    app: projectA
-    service: projectA
+    app: project-a
+    service: project-a
 spec:
   ports:
     - port: 8081
       name: http
   selector:
-    app: projectA
+    app: project-a
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: projectB
+  name: project-b
   labels:
-    app: projectB
-    service: projectB
+    app: project-b
+    service: project-b
 spec:
   ports:
     - port: 8080
       name: http
   selector:
-    app: projectB
+    app: project-b

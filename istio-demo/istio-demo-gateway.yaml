@@ -1,14 +1,14 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: projectB
+  name: project-b
   namespace: default
 spec:
   rules:
-    - host: default.projectB.com
+    - host: default.project-b.com
       http:
         paths:
           - path: /
             backend:
-              serviceName: projectB
+              serviceName: project-b
               servicePort: 8080
