@@ -46,6 +46,9 @@ spec:
       containers:
         - name: project-b
           image: project-b:1.0
+          args:
+            - --projectA
+            - project-a
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -77,3 +80,18 @@ spec:
       name: http
   selector:
     app: project-b
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: project-a
+  labels:
+    account: project-a
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: project-b
+  labels:
+    account: project-b

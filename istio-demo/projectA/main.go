@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
@@ -10,17 +11,19 @@ import (
 
 var (
 	flags = struct {
-		Addr string
+		Addr     string
+		HostName string
 	}{}
 
 	rootCmd = &cobra.Command{
 		Use:          "project-A",
 		SilenceUsage: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			router := gin.Default()
 
 			router.GET("/v1", func(ctx *gin.Context) {
-				ctx.String(http.StatusOK, "hello, world")
+				ctx.String(http.StatusOK, fmt.Sprintf("hello, world! from %s", flags.HostName))
 			})
 			return http.ListenAndServe(flags.Addr, router)
 		},
@@ -29,6 +32,7 @@ var (
 
 func init() {
 	rootCmd.PersistentFlags().StringVar(&flags.Addr, "addr", ":8081", "project-A addr")
+	flags.HostName, _ = os.Hostname()
 }
 
 func main() {
