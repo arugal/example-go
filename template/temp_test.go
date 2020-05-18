@@ -12,22 +12,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package example_go
+package template
 
 import (
-	"io/ioutil"
-	"net/http"
+	"os"
 	"testing"
+	"text/template"
 )
 
-func TestGet(t *testing.T) {
-	resp, err := http.Get("http://www.baidu.com")
-	if err != nil {
-		t.Error(err)
-	}
-	defer resp.Body.Close()
-	_, err = ioutil.ReadAll(resp.Body)
-	if err != nil {
-		t.Error(err)
-	}
+type Friend struct {
+	Name string
+}
+
+type Person struct {
+	UserName string
+	Emails   []string
+	Friends  []*Friend
+}
+
+func Test1(t *testing.T) {
+	f1 := Friend{Name: "Zhang San"}
+	f2 := Friend{Name: "Li Si"}
+	temp := template.New("test1")
+	temp = template.Must(temp.Parse(
+		`hello {{.UserName}}!
+{{ range .Emails }}
+an email {{ . }}
+{{- end }}
+{{ with .Friends }}
+{{- range . }}
+my friend name is {{.Name}}
+{{- end }}
+{{ end }}`))
+	p := Person{UserName: "Wang Wu",
+		Emails:  []string{"wangwu@qq.com", "wangwu@gmail.com"},
+		Friends: []*Friend{&f1, &f2}}
+	temp.Execute(os.Stdout, p)
 }
