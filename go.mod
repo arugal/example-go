@@ -19,6 +19,7 @@ require (
 	github.com/prometheus/common v0.6.0
 	github.com/sirupsen/logrus v1.2.0
 	github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8 // indirect
+	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect
 	google.golang.org/appengine v1.6.4 // indirect
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

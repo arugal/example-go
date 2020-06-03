@@ -266,3 +266,33 @@ func listenYamux(port string, handler func(conn net.Conn)) (net.Listener, error)
 
 	return listen, nil
 }
+
+func TestNetInterface(t *testing.T) {
+	ifaces, _ := net.Interfaces()
+	for _, iface := range ifaces {
+		if iface.Flags&net.FlagUp == 0 {
+			continue // interface down
+		}
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue // loopback interface
+		}
+		addrs, _ := iface.Addrs()
+
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip == nil || ip.IsLoopback() {
+				continue
+			}
+			if ip.IsUnspecified() {
+				continue
+			}
+			fmt.Printf("ipAddress: %s\n", ip.String())
+		}
+	}
+}
